@@ -57,3 +57,15 @@ int init_socket(int port)
 	printf("My Web Server is Ready!\n");
 	return socketfd;
 }
+
+//обработчик сигнала
+void sighandler(int signo)
+{
+	printf("catch signo = %d\n",signo);
+	while(1)
+	{
+		int ret= waitpid(-1,NULL,WNOHANG); //немедленное возвращение управления, если ни один дочерний процесс не завершил выполнение. 
+		printf("ret = %d\n",ret);
+		if(ret > 0) return;
+	}
+}
