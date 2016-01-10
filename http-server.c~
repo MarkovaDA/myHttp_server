@@ -101,3 +101,39 @@ void sighandler(int signo)
 		if(ret > 0) return;
 	}
 }
+//анализ запроса
+void data_process(int clientfd)
+{
+	fd_set rfds;
+	struct timeval tv;
+	FD_ZERO(&rfds);
+	FD_SET(clientfd, &rfds); //добавляем clienfd-дескриптор в сет rdfs
+	tv.tv_sec = 10; //таймаут 10 сек 
+	tv.tv_usec = 0; //0 мс
+	struct sockaddr_in client_addr;
+	socklen_t c_length = sizeof(client_addr);
+  //помещает адрес сокета, с которым установлено соединение, в структуру client_addr
+	getpeername(clientfd,(struct sockaddr *)(&client_addr),&c_length);
+	printf("a client %s:%u connect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
+  //проверка состояния сокетов: в rfds будет отображено, какие сокеты доступны для чтения
+	int ret_sl = select(clientfd+1,&rfds,NULL,NULL,&tv);
+	if(ret_sl == 0)
+	{
+		printf("time out a client %s:%u disconnect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
+		exit(0);
+	}
+	while(1)
+	{
+		char buf[256] = {'\0'};
+		//чтение
+		if(recv_size <= 2) break;
+    //получение имени файла
+		if(fileName != NULL)
+		{
+			 //осуществление get-запроса
+		}
+	}
+	printf("a client %s:%u disconnect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
+	exit(0);
+}
+
