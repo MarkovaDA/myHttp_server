@@ -13,7 +13,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include "http_server.h"
+#include "http-server.h"
 
 #define WEB_ROOT "/WEB"
 
