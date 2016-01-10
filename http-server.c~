@@ -136,4 +136,24 @@ void data_process(int clientfd)
 	printf("a client %s:%u disconnect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
 	exit(0);
 }
+char* get_fileName(char *buf)
+{
+	char *p = (char *)malloc(256);
+	p = strchr(buf,' ');
+	if(p != NULL)
+	{
+		*p++ = '\0';
+		if(strcmp(buf,"GET") == 0)
+		{
+			char *q = strchr(p,' ');
+			if(q != NULL)
+			{
+				*q = '\0';
+				return p;
+			}
+		}
+		return NULL;
+	}
+	return NULL;
+}
 
