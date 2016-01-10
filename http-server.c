@@ -126,11 +126,14 @@ void data_process(int clientfd)
 	{
 		char buf[256] = {'\0'};
 		//чтение
+		int recv_size = read_line(clientfd,buf,sizeof(buf));
 		if(recv_size <= 2) break;
     //получение имени файла
+		char *fileName = get_fileName(buf);
 		if(fileName != NULL)
 		{
 			 //осуществление get-запроса
+			 do_get(clientfd,fileName);
 		}
 	}
 	printf("a client %s:%u disconnect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
@@ -155,5 +158,49 @@ char* get_fileName(char *buf)
 		return NULL;
 	}
 	return NULL;
+}
+
+int read_line(int fd,char *buf,int size)
+{
+	int i = 0;
+	char ch;
+	for(i = 0;i < size;++i)
+	{
+		int n = recv(fd,&ch,1,0);
+		if(1 == n)
+		{
+			buf[i] = ch;
+			if(ch == '\n') break;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	return i+1;
+}
+//извлечение html-страниц
+void do_get(int fd,char *fileName)
+{
+	char path[128] = {'\0'};
+	if(strcmp(fileName,"/") == 0) fileName = "/index.html";
+	sprintf(path,"%s%s",WEB_ROOT,fileName);
+	FILE *fp = fopen(path,"r");
+	if(fp == NULL)
+	{
+		printf("%s is not found\n",path);
+		char errmsg[32] = {"<h1>404 Not Found</h1>"};
+		send(fd,errmsg,strlen(errmsg),0);
+		return ;
+	}
+	while(1)
+	{
+		char buf[1024] = {'\0'};
+    //читам файл и возвращаем его содержимое клиенту
+		int read_size = fread(buf,1,sizeof(buf),fp);
+		if(read_size <= 0) break;
+		send(fd,buf,read_size,0);
+	}
+	fclose(fp);
 }
 
