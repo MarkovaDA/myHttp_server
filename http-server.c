@@ -16,7 +16,7 @@
 #include "http-server.h"
 
 #define WEB_ROOT "/WEB"
-
+int shmid = 0;
 int init_socket(int port)
 {
 	int socketfd = socket(AF_INET,SOCK_STREAM,0); //дескриптор сокета
@@ -89,7 +89,26 @@ void start_server(int port){
 	}
     close(socketfd);
 }
-
+char* get_fileName(char *buf)
+{
+	char *p = (char *)malloc(256);
+	p = strchr(buf,' ');
+	if(p != NULL)
+	{
+		*p++ = '\0';
+		if(strcmp(buf,"GET") == 0)
+		{
+			char *q = strchr(p,' ');
+			if(q != NULL)
+			{
+				*q = '\0';
+				return p;
+			}
+		}
+		return NULL;
+	}
+	return NULL;
+}
 //обработчик сигнала
 void sighandler(int signo)
 {
@@ -138,26 +157,6 @@ void data_process(int clientfd)
 	}
 	printf("a client %s:%u disconnect!\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
 	exit(0);
-}
-char* get_fileName(char *buf)
-{
-	char *p = (char *)malloc(256);
-	p = strchr(buf,' ');
-	if(p != NULL)
-	{
-		*p++ = '\0';
-		if(strcmp(buf,"GET") == 0)
-		{
-			char *q = strchr(p,' ');
-			if(q != NULL)
-			{
-				*q = '\0';
-				return p;
-			}
-		}
-		return NULL;
-	}
-	return NULL;
 }
 
 int read_line(int fd,char *buf,int size)
