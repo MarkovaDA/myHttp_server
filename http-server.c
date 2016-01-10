@@ -57,6 +57,38 @@ int init_socket(int port)
 	printf("My Web Server is Ready!\n");
 	return socketfd;
 }
+//запуск сервера
+void start_server(int port){
+	int socketfd = init_socket(port);
+	while(1) //цикл ожидания запросов
+	{ //запрос на соединение - получаем новый сокет для обмена данными с клиентом
+		int clientfd = accept(socketfd,NULL,NULL);
+		if(clientfd == -1)
+		{
+			perror("accept error");
+			continue;
+		}
+		//обрабатываем сигнал SIGCHLD - изменение состояние дочернего процесса
+		signal(SIGCHLD,sighandler);
+		if(shmid == -1)
+		{
+			perror("error");
+			exit(1);
+		}
+		int pid = fork(); //каждый запрос обрабатывается новом процессе
+		if(pid < 0)
+		{
+			perror("fork error");
+			break;
+		}
+		else if(pid == 0)
+		{
+			//здесь обработка запроса
+		}
+		close(clientfd);
+	}
+    close(socketfd);
+}
 
 //обработчик сигнала
 void sighandler(int signo)
